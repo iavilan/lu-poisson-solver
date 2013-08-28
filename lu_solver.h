@@ -37,17 +37,14 @@ void modify(struct superlu_params *Par);
 void preparation_of_matrix_superlu(double Rx, double Ry,  long int Nx, long int Ny, double dx, double dy,
 struct superlu_params &Par,vector <double> &alphax, vector <double> &alphay,
 vector <int> &iindex,
-vector <int> &bindex,
-vector <double> &tanx, vector <double> &tany);
+vector <int> &bindex);
 
 //PREPARATION OF MATRIX FORRECTANGULAR GEOMETRY
 void preparation_of_matrix_superlu_rectangular(long int Nx, long int Ny, double dx, double dy,
 struct superlu_params &Par,
  vector <double> &alphax, vector <double> &alphay,
 vector <int> &iindex,
-vector <int> &bindex,
-//ANGLE BETWEEN THE X AND Y AXIS AND THE WALL NEAR THE CUT CELL
-vector <double> &tanx, vector <double> &tany);
+vector <int> &bindex);
 
 //CALCULATING POTENTIAL USING THE SUPERLU ALGORITHMS
 void calc_potential_superlu(double *rho, struct superlu_params *Par, long int Nx, long int Ny, double dx, double dy,

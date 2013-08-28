@@ -32,9 +32,7 @@ void preparation_of_matrix_superlu(double Rx, double Ry,  long int Nx, long int 
 struct superlu_params &Par,
  vector <double> &alphax, vector <double> &alphay,
 vector <int> &iindex,
-vector <int> &bindex,
-//ANGLE BETWEEN THE X AND Y AXIS AND THE WALL NEAR THE CUT CELL
-vector <double> &tanx, vector <double> &tany)
+vector <int> &bindex)
 	{
 double dxdy=dx*dy;
 #if ( DEBUGlevel>=1 )
@@ -102,14 +100,7 @@ for(int i=0;i<Nx;++i)
 					if(pow((x+dx)/Rx,2)+pow((y)/Ry,2)>=1.0)
 						{
 						double alphatemp=(Rx*sqrt(1.0-y*y/Ry/Ry)-x)/dx;
-						/*if(alphatemp==1.0)
-							{
-							alphatemp=0.0;
-							}*/
 						alphax.push_back( alphatemp);
-						//HERE THE  yy IS USED BECAUSE THE SIGN MATTERS
-						tanx.push_back(-Rx*y/Ry/Ry/sqrt(1.0-y*y/Ry/Ry));
-						//alphax.push_back(1.0);
 						}
 					else
 						{
@@ -119,35 +110,14 @@ for(int i=0;i<Nx;++i)
 					if(pow((x)/Rx,2)+pow((y+dy)/Ry,2)>=1.0)
 						{
 						double alphatemp=(Ry*sqrt(1.0-x*x/Rx/Rx)-y)/dy;
-						/*if(alphatemp==1.0)
-							{
-							alphatemp=0.0;
-							}*/
 						alphay.push_back( alphatemp);
-						//alphay.push_back(1.0);
-						//HERE THE  xx IS USED BECAUSE THE SIGN MATTERS
-						tany.push_back(-Ry*x/Rx/Rx/sqrt(1.0-x*x/Rx/Rx));
 						}
 					else
 						{
 						alphay.push_back(1.0);
 						}
-
-					if(tanx.size()>tany.size())
-						{
-						//JUST SOME VALUE THAT WILL NOT BE USED
-						tany.push_back(1.0);
-						}
-					else if(tany.size()>tanx.size())
-						{
-						//JUST SOME VALUE THAT WILL NOT BE USED
-						tanx.push_back(1.0);
-						}
-					
 					alphatempx.push_back(alphax.back());
-					alphatempy.push_back(alphay.back());
-					//bx.push_back(i);
-					//by.push_back(j);	
+					alphatempy.push_back(alphay.back());	
 					bindex.push_back(i*Ny+j);						
 					}
 				else
@@ -179,31 +149,25 @@ for(int i=0;i<totsize;++i)
 		//IF SHIFT BY deltam PRESERVES THE ROW NUMBER
 		if(i-deltam>=0 && iy[i]==iy.at(i-deltam))
 			{
-			Aa.push_back(-EPS0*dxdy/dxdx/*/(1.0+alphax[i])*/);
+			Aa.push_back(-EPS0*dxdy/dxdx);
 			Arows.push_back(i-deltam);
-			//matrix.at(i*totsize+i-deltam)=Aa.back()/EPS0;
 			}
 		}
 	//UP DIAGONAL//IF SHIFT BY ONE ELEMENT PRESERVES THE COLUMN
 	if(i>0 && ix[i]==ix.at(i-1))
 		{
 		//printf("Before up\n");
-		Aa.push_back(-EPS0*dxdy/dydy/*/(1.0+alphay[i])*/);
+		Aa.push_back(-EPS0*dxdy/dydy);
 		Arows.push_back(i-1);
-		//matrix.at(i*totsize+i-1)=Aa.back()/EPS0/dydy;
 		}
 	//MAIN DIAGONAL
-		//Aa.push_back(2.0*EPS0*(1.0/dxdx/alphax[i]+1.0/dydy/alphay[i]));
-		//Aa.push_back(EPS0*(2.0/dxdx/alphax[i]+2.0/dydy/alphay[i]) );
 		Aa.push_back(EPS0*dxdy*((1.0+alphax[i])/alphax[i]/dxdx+(1.0+alphay[i])/alphay[i]/dydy) );
 		Arows.push_back(i);
-		//matrix.at(i*totsize+i)=Aa.back()/EPS0;
 	//LOW DIAGONAL//IF SHIFT BY ONE ELEMENT PRESERVES THE COLUMN
 	if(i+1<totsize && ix[i]==ix.at(i+1))
 		{
-		Aa.push_back(-EPS0*dxdy/dydy/*/(1.0+alphay[i])*/);
+		Aa.push_back(-EPS0*dxdy/dydy);
 		Arows.push_back(i+1);
-		//matrix.at(i*totsize+i+1)=Aa.back()/EPS0;
 		}
 	//LOWER DIAGONAL
 	if(index+1<incolumn.size())
@@ -212,26 +176,13 @@ for(int i=0;i<totsize;++i)
 		//IF SHIFT BY deltap PRESERVES THE ROW NUMBER
 		if(i+deltap<totsize && iy[i]==iy.at(i+deltap))
 			{
-			Aa.push_back(-EPS0*dxdy/dxdx/*/(1.0+alphax[i])*/);
+			Aa.push_back(-EPS0*dxdy/dxdx);
 			Arows.push_back(i+deltap);
-			//matrix.at(i*totsize+i+deltap)=Aa.back()/EPS0;
 			}
 		}
 	Acolumn.push_back(Aa.size());
 	}
-	/*if(totsize<=10)
-	{
-	FILE *fd=fopen("matrice.dat","w");
-	for(int i=0;i<totsize;i++)
-		{
-		for(int j=0;j<totsize;j++)
-			{
-			fprintf(fd,"%e ",matrix[i*totsize+j]);
-			}
-		fprintf(fd, "\n");
-		}
-	fclose(fd);
-	}*/
+
 	printf("Rewriting vectors to dynamic arrays\n");
 	double *a=new double[Aa.size()];
 	memcpy(a,&Aa[0],Aa.size()*sizeof(double));
@@ -256,8 +207,7 @@ for(int j=0;j<totsize;++j)
     dCreate_Dense_Matrix(&(Par.X), Par.m, Par.nrhs, Par.rhsx, Par.m, SLU_DN, SLU_D, SLU_GE);
     Par.xact = doubleMalloc(Par.n * Par.nrhs);
     Par.ldx = Par.n;
-    //dGenXtrue(n, nrhs, xact, ldx);
-    //dFillRHS(trans, nrhs, xact, ldx, &A, &B);
+
 
 	printf("Other SuperLU variables\n");
     if ( !(Par.etree = intMalloc(Par.n)) ) ABORT("Malloc fails for etree[].");
@@ -290,7 +240,7 @@ for(int j=0;j<totsize;++j)
 	alphax=alphatempx;
 	alphay=alphatempy;
 	printf("New alphax_size %d\n",alphax.size());
-	printf("Size of tangent vectors %d %d\n",tanx.size(),tany.size());
+
 	}
 
 
@@ -299,9 +249,7 @@ void preparation_of_matrix_superlu_rectangular(long int Nx, long int Ny, double 
 struct superlu_params &Par,
  vector <double> &alphax, vector <double> &alphay,
 vector <int> &iindex,
-vector <int> &bindex,
-//ANGLE BETWEEN THE X AND Y AXIS AND THE WALL NEAR THE CUT CELL
-vector <double> &tanx, vector <double> &tany)
+vector <int> &bindex)
 	{
 double dxdy=dx*dy;
 #if ( DEBUGlevel>=1 )
@@ -501,7 +449,6 @@ for(int j=0;j<totsize;++j)
 	alphax=alphatempx;
 	alphay=alphatempy;
 	printf("New alphax_size %d\n",alphax.size());
-	printf("Size of tangent vectors %d %d\n",tanx.size(),tany.size());
 	}
 
 void calc_potential_superlu(double *rho, struct superlu_params *Par, long int Nx, long int Ny, double dx, double dy,

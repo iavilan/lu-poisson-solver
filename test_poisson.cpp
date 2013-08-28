@@ -64,13 +64,10 @@ int main(int argc, char *argv[])
 	vector <int> iindex;
 	//INDICES INSIDE THE DOMAIN CLOSE TO BOUNDARY (i+-1 || i+-Ny ARE OUTSIDE)
 	vector <int> bindex;
-	//TANGENT OF A SURFACE AT CUTCELL (FOR PRECISE FIELD CALCULATIONS (NOT IMPLEMENTED))
-	vector <double> tanx;
-	vector <double> tany;
 	//A STRUCTURE WITH ALL THE PARAMETERS NEEDED FOR SUPERLU MANIPULATIONS
 	superlu_params Par;
 	//PREPARE THE MATRIX AND ITS LU DECOMPOSITION AND SAVING THE LENGTH OF CUTCELLS
-	preparation_of_matrix_superlu(Rx, Ry, Nx, Ny, dx, dy, Par, alphax, alphay, iindex, bindex,tanx,tany);
+	preparation_of_matrix_superlu(Rx, Ry, Nx, Ny, dx, dy, Par, alphax, alphay, iindex, bindex);
 	//SOLVING FOR THE POTENTIAL
 	calc_potential_superlu(rho_e, &Par, Nx, Ny, dx, dy, iindex);
 	//SOLVING FOR ELECTRIC FIELD
