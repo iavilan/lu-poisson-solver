@@ -10,4 +10,5 @@ test_poisson.cpp
 Makefile
 
 		
-		To make this solver work you should download and compile SuperLU_4.3 from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
+		To make this solver work you should download and compile SuperLU_4.3 
+		from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
