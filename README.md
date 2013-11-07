@@ -12,3 +12,4 @@ Makefile
 		
 		To make this solver work you should download and compile SuperLU_4.3 
 		from http://crd-legacy.lbl.gov/~xiaoye/SuperLU/
+		After that set all the right pathes in the Makefile.
